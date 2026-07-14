@@ -1,0 +1,514 @@
+<title>통합과학 LAB — 소개</title>
+<style>
+/* ===== Galmuri pixel fonts (embedded, subset) ===== */
+@font-face{font-family:'Galmuri11';src:url(__G11__) format('woff2');font-weight:400;font-style:normal;font-display:block}
+@font-face{font-family:'Galmuri11';src:url(__G11B__) format('woff2');font-weight:700;font-style:normal;font-display:block}
+@font-face{font-family:'Galmuri14';src:url(__G14__) format('woff2');font-weight:400;font-style:normal;font-display:block}
+@font-face{font-family:'GalmuriMono';src:url(__GMONO__) format('woff2');font-weight:400;font-style:normal;font-display:block}
+
+:root{
+  --ink:#000; --paper:#fff; --paper2:#f2f2f2;
+  --menubar-h:26px;
+  --stripe: repeating-linear-gradient(to bottom, var(--ink) 0 1px, var(--paper) 1px 3px);
+  --dither: repeating-conic-gradient(var(--ink) 0% 25%, var(--paper) 0% 50%) 0 0 / 4px 4px;
+  --hatch: repeating-linear-gradient(45deg, var(--ink) 0 1px, var(--paper) 1px 5px);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Galmuri11','Apple SD Gothic Neo',system-ui,sans-serif;
+  -webkit-font-smoothing:none; font-smooth:never;
+  overflow:hidden; -webkit-text-size-adjust:100%;
+}
+.mono{font-family:'GalmuriMono','SF Mono',Consolas,monospace}
+.h{font-family:'Galmuri14','Galmuri11',system-ui,sans-serif;font-weight:400;line-height:1.25;text-wrap:balance}
+b,strong{font-weight:700}
+
+/* ===== Desktop shell ===== */
+.desktop{position:fixed; inset:0; display:flex; flex-direction:column;
+  background:var(--dither); image-rendering:pixelated;}
+.menubar{flex:0 0 var(--menubar-h); background:var(--paper); border-bottom:1px solid var(--ink);
+  display:flex; align-items:center; gap:16px; padding:0 12px; font-size:13px; position:relative; z-index:5}
+.menubar .apple{font-size:12px}
+.menubar .mb-title{font-weight:700}
+.menubar .mb-menu{opacity:.72}
+.menubar .mb-right{margin-left:auto; display:flex; align-items:center; gap:14px}
+.menubar .mb-count{font-family:'GalmuriMono',monospace; font-size:12px}
+.menubar .mb-clock{font-family:'GalmuriMono',monospace; font-size:12px; opacity:.75}
+@media (max-width:720px){ .menubar .mb-menu{display:none} }
+
+.stage{flex:1; display:flex; align-items:center; justify-content:center; padding:16px; min-height:0}
+
+/* ===== Window ===== */
+.window{
+  width:min(97%, calc((100vh - var(--menubar-h) - 32px) * 1.6));
+  height:min(calc(100vh - var(--menubar-h) - 32px), calc(97vw / 1.6));
+  background:var(--paper); border:1px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink), 5px 5px 0 rgba(0,0,0,.18);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.titlebar{flex:0 0 22px; background:var(--stripe); border-bottom:1px solid var(--ink);
+  display:flex; align-items:center; gap:8px; padding:0 8px; position:relative}
+.titlebar .box{width:11px;height:11px;border:1px solid var(--ink);background:var(--paper);flex:0 0 auto}
+.titlebar .box.zoom{margin-left:auto; position:relative}
+.titlebar .box.zoom::after{content:"";position:absolute;top:1px;left:1px;right:4px;bottom:4px;border:1px solid var(--ink)}
+.titlebar .tt{position:absolute; left:50%; transform:translateX(-50%); background:var(--paper);
+  padding:0 12px; font-size:13px; max-width:70%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+.content{flex:1; min-height:0; position:relative; background:var(--paper)}
+.statusbar{flex:0 0 auto; border-top:1px solid var(--ink); display:flex; align-items:center;
+  justify-content:space-between; gap:10px; padding:4px 10px; font-family:'GalmuriMono',monospace; font-size:12px}
+.statusbar .nav{display:flex; align-items:center; gap:6px}
+.statusbar button{font:inherit; font-family:'GalmuriMono',monospace; background:var(--paper); color:var(--ink);
+  border:1px solid var(--ink); border-radius:9px; padding:1px 9px; cursor:pointer; line-height:1.4}
+.statusbar button:hover{background:var(--ink); color:var(--paper)}
+.statusbar button:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.statusbar button:disabled{opacity:.3; cursor:default}
+.statusbar button:disabled:hover{background:var(--paper); color:var(--ink)}
+
+/* ===== Slides ===== */
+.slide{position:absolute; inset:0; padding:clamp(16px,3.4vh,42px) clamp(20px,3.6vw,58px);
+  display:none; flex-direction:column; min-height:0}
+.slide.active{display:flex}
+@media (prefers-reduced-motion:no-preference){
+  .slide.active{animation:fade .16s ease-out}
+  @keyframes fade{from{opacity:.35}to{opacity:1}}
+}
+
+/* text helpers */
+.eyebrow{font-family:'GalmuriMono',monospace; font-size:clamp(11px,1.5vh,14px); letter-spacing:.06em;
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:clamp(8px,1.6vh,16px)}
+.eyebrow .k{border:1px solid var(--ink); padding:1px 7px; border-radius:8px}
+h1.title{font-family:'Galmuri14','Galmuri11',sans-serif; font-weight:400; margin:0;
+  font-size:clamp(26px,5vh,50px); line-height:1.18; text-wrap:balance}
+h2.title{font-family:'Galmuri14','Galmuri11',sans-serif; font-weight:400; margin:0 0 clamp(10px,1.8vh,20px);
+  font-size:clamp(21px,3.7vh,36px); line-height:1.2; text-wrap:balance}
+.lead{font-size:clamp(13px,1.9vh,18px); line-height:1.6; max-width:60ch}
+.muted{opacity:.62}
+ul.pts{list-style:none; margin:clamp(8px,1.6vh,16px) 0 0; padding:0; display:flex; flex-direction:column;
+  gap:clamp(6px,1.3vh,13px); font-size:clamp(12.5px,1.75vh,17px); line-height:1.5; max-width:58ch}
+ul.pts li{padding-left:20px; position:relative}
+ul.pts li::before{content:"▸"; position:absolute; left:0; top:0}
+ul.pts li b{font-weight:700}
+
+.row{display:flex; gap:clamp(14px,2.4vw,36px); min-height:0; flex:1}
+.col{display:flex; flex-direction:column; min-height:0}
+.grow{flex:1; min-height:0}
+.center{align-items:center; justify-content:center}
+.fill{flex:1; min-height:0}
+
+/* screenshot frame */
+.shot{border:1px solid var(--ink); box-shadow:2px 2px 0 var(--ink); background:var(--paper);
+  overflow:hidden; min-height:0; min-width:0}
+.shot img{display:block; width:100%; height:100%; object-fit:contain; image-rendering:auto}
+.shot.cover img{object-fit:cover; object-position:center}
+.shot.top img{object-fit:cover; object-position:top}
+.cap{font-family:'GalmuriMono',monospace; font-size:clamp(10px,1.35vh,12.5px); margin-top:6px; opacity:.72}
+
+/* chips / lineup */
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{border:1px solid var(--ink); border-radius:10px; padding:2px 10px; font-size:clamp(11px,1.5vh,14px)}
+.chip.sel{background:var(--ink); color:var(--paper)}
+
+.unit{display:flex; gap:12px; align-items:flex-start; padding:clamp(7px,1.3vh,12px) 0; border-top:1px solid var(--ink)}
+.unit:first-child{border-top:none}
+.unit .u-k{flex:0 0 auto; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+  font-family:'GalmuriMono',monospace; padding:2px 9px; border-radius:8px; font-size:clamp(11px,1.5vh,14px)}
+.unit .u-b{min-width:0}
+.unit .u-t{font-size:clamp(12px,1.6vh,15px); opacity:.6; font-family:'GalmuriMono',monospace}
+.unit .u-x{font-size:clamp(12.5px,1.7vh,16.5px); line-height:1.5; margin-top:2px}
+.unit .u-x b{font-weight:700}
+
+/* reusable cell / label / desc */
+.cell{display:flex; flex-direction:column; min-height:0; min-width:0}
+.lbl{font-family:'Galmuri14',sans-serif; font-size:clamp(13px,1.9vh,18px); margin-bottom:6px;
+  display:flex; align-items:center; gap:8px}
+.d{font-size:clamp(11.5px,1.5vh,14.5px); line-height:1.45; margin-top:7px}
+.d b{font-weight:700}
+
+/* 3-step / trio */
+.trio{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,1.8vw,26px); flex:1; min-height:0}
+.trio .cell{display:flex; flex-direction:column; min-height:0}
+.trio .cell .lbl{font-family:'Galmuri14',sans-serif; font-size:clamp(13px,1.9vh,18px); margin-bottom:6px;
+  display:flex; align-items:center; gap:8px}
+.trio .cell .n{border:1px solid var(--ink); border-radius:50%; width:1.7em; height:1.7em; flex:0 0 auto;
+  display:inline-flex; align-items:center; justify-content:center; font-family:'GalmuriMono',monospace; font-size:.8em}
+.trio .cell .d{font-size:clamp(11.5px,1.5vh,14.5px); line-height:1.45; margin-top:7px}
+
+/* pipeline */
+.flow{display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin-top:clamp(8px,1.6vh,16px)}
+.flow .node{border:1px solid var(--ink); border-radius:10px; padding:clamp(7px,1.3vh,13px) clamp(9px,1.1vw,15px);
+  display:flex; flex-direction:column; gap:2px; min-width:0; justify-content:center}
+.flow .node.gate{background:var(--ink); color:var(--paper)}
+.flow .node .nt{font-size:clamp(12px,1.6vh,15px)}
+.flow .node .ns{font-family:'GalmuriMono',monospace; font-size:clamp(9.5px,1.25vh,11.5px); opacity:.7}
+.flow .node.gate .ns{opacity:.85}
+.flow .arr{display:flex; align-items:center; font-size:clamp(13px,1.7vh,17px)}
+
+/* hero icon */
+.heroicon{width:clamp(52px,8vh,84px); height:auto; margin-bottom:clamp(10px,2vh,22px)}
+.urlpill{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--ink); border-radius:12px;
+  padding:5px 13px; font-family:'GalmuriMono',monospace; font-size:clamp(12px,1.7vh,16px); margin-top:clamp(12px,2.2vh,24px)}
+.urlpill .dot{width:8px;height:8px;background:var(--ink);border-radius:50%}
+
+/* QR block */
+.qrbox{display:flex; gap:clamp(16px,2.5vw,34px); align-items:center; flex-wrap:wrap}
+.qr{width:clamp(120px,20vh,190px); height:clamp(120px,20vh,190px); border:1px solid var(--ink);
+  box-shadow:2px 2px 0 var(--ink); padding:8px; background:var(--paper); flex:0 0 auto}
+.qr svg{width:100%; height:100%; display:block}
+
+.divider{height:1px;background:var(--ink);margin:clamp(8px,1.6vh,16px) 0}
+.foot{margin-top:auto; padding-top:clamp(8px,1.4vh,14px); font-family:'GalmuriMono',monospace;
+  font-size:clamp(10px,1.35vh,12.5px); opacity:.6}
+
+/* closing */
+.closing{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;gap:clamp(10px,2vh,22px)}
+.closing h1{font-size:clamp(24px,5.2vh,52px)}
+
+kbd{font-family:'GalmuriMono',monospace;border:1px solid var(--ink);border-radius:5px;padding:0 5px;font-size:.85em}
+a{color:inherit}
+.hint{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:6;font-family:'GalmuriMono',monospace;
+  font-size:11px;opacity:.5;pointer-events:none}
+@media (max-width:720px){ .hint{display:none} }
+</style>
+
+<div class="desktop" id="desktop">
+  <div class="menubar">
+    <span class="apple">◆</span>
+    <span class="mb-title">LAB</span>
+    <span class="mb-menu">파일</span><span class="mb-menu">편집</span><span class="mb-menu">보기</span><span class="mb-menu">실험</span>
+    <span class="mb-right">
+      <span class="mb-count" id="counter">01 / 11</span>
+      <span class="mb-clock">10:24 AM</span>
+    </span>
+  </div>
+
+  <div class="stage">
+    <div class="window">
+      <div class="titlebar">
+        <span class="box close"></span>
+        <span class="tt" id="winTitle">통합과학 LAB</span>
+        <span class="box zoom"></span>
+      </div>
+
+      <div class="content" id="content">
+
+        <!-- ============ SLIDE 1 : COVER ============ -->
+        <section class="slide active" data-title="통합과학 LAB" data-status="표지">
+          <div class="col center fill" style="text-align:center">
+            <svg class="heroicon" viewBox="0 0 120 108" fill="none" stroke="#000" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <rect x="12" y="8" width="96" height="72" rx="6"/>
+              <path d="M54 26 h12 v14 l14 24 a6 6 0 0 1 -5 9 H45 a6 6 0 0 1 -5 -9 l14 -24 z"/>
+              <line x1="49" y1="52" x2="71" y2="52"/>
+              <circle cx="60" cy="61" r="2.4" fill="#000" stroke="none"/>
+              <path d="M46 96 h28 M60 80 v16"/>
+            </svg>
+            <h1 class="title">통합과학 LAB</h1>
+            <p class="lead" style="margin:14px auto 0">만지는 과학 실험실 — 목적도 정답도 없이,<br>원하는 실험을 골라 <b>변수를 직접 만지는</b> 도구함.</p>
+            <span class="urlpill"><span class="dot"></span>free-fall-experiment.vercel.app</span>
+            <div class="foot" style="margin-top:18px">서비스 소개 자료 · 브라우저에서 바로 실행 · 설치 없음</div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 2 : WHY ============ -->
+        <section class="slide" data-title="읽어보기" data-status="왜 만지는 실험실인가">
+          <div class="eyebrow"><span class="k">01</span> 왜 '만지는' 실험실인가</div>
+          <h2 class="title">보이지 않는 과학을,<br>만질 수 있게.</h2>
+          <div class="row">
+            <div class="col grow">
+              <ul class="pts">
+                <li>자유낙하의 <b>g</b>, 삼투, 효소 변성, 별의 진화, 자연선택 — 통합과학의 핵심은 대부분 <b>눈에 안 보이고 추상적</b>이다.</li>
+                <li>교과서 그림과 설명만으로는 '왜 그런지'가 손에 잡히지 않는다.</li>
+                <li>통합과학 LAB은 그 개념을 <b>직접 조작할 수 있는 대상</b>으로 바꾼다. 높이·질량·농도·온도를 만지면 결과가 <b>실시간</b>으로 바뀐다.</li>
+                <li>정답을 따라가는 실험이 아니라, 변수를 만지며 <b>스스로 규칙을 발견</b>하는 도구함.</li>
+              </ul>
+            </div>
+            <div class="col grow center" style="flex:0 0 34%">
+              <div style="border:1px solid #000;box-shadow:3px 3px 0 #000;padding:22px 20px;text-align:center">
+                <div class="mono" style="font-size:12px;opacity:.6;margin-bottom:10px">— 서비스 한 줄 —</div>
+                <div class="h" style="font-size:clamp(15px,2.3vh,22px);line-height:1.5">"목적도 정답도 없이,<br>만지면서 배운다."</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 3 : FIRST IMPRESSION ============ -->
+        <section class="slide" data-title="통합과학 LAB" data-status="첫인상 · 레트로 Mac">
+          <div class="eyebrow"><span class="k">02</span> 첫인상</div>
+          <div class="row">
+            <div class="col" style="flex:0 0 37%">
+              <h2 class="title">열면, 옛 매킨토시<br>바탕화면이 뜬다.</h2>
+              <ul class="pts">
+                <li>메뉴바 · 창 · 휴지통 · <span class="mono">실험 HD</span> — 통째로 <b>클래식 Mac OS</b>.</li>
+                <li>순흑백 <b>픽셀(Galmuri) UI</b>. 색도 잡음도 없이 실험에만 몰입.</li>
+                <li>'컴퓨터를 켜서 실험한다'는 <b>낯설고 재미있는 경험</b>으로 만든다.</li>
+              </ul>
+              <div class="foot">에듀테크에서 보기 드문, 뚜렷한 브랜드.</div>
+            </div>
+            <div class="col grow">
+              <div class="shot cover fill"><img src="__IMG_HOME__" alt="통합과학 LAB 홈 화면 — 레트로 Mac 데스크톱"></div>
+              <div class="cap">홈 화면 · free-fall-experiment.vercel.app</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 4 : HOW IT WORKS ============ -->
+        <section class="slide" data-title="역학 시뮬.exp" data-status="쓰는 법 · 개념→체험→퀴즈">
+          <div class="eyebrow"><span class="k">03</span> 쓰는 법</div>
+          <h2 class="title">모든 실험이 <b>3단계</b>로 통일돼 있다.</h2>
+          <div class="trio">
+            <div class="cell">
+              <div class="lbl"><span class="n">1</span> 개념</div>
+              <div class="shot top grow"><img src="__IMG_CONCEPT__" alt="개념 탭"></div>
+              <div class="d"><b>학습목표 · 교과서 페이지 · 시험 포인트</b>로 먼저 큰 그림을 잡는다.</div>
+            </div>
+            <div class="cell">
+              <div class="lbl"><span class="n">2</span> 체험</div>
+              <div class="shot top grow"><img src="__IMG_EXPERIENCE__" alt="체험 탭"></div>
+              <div class="d">슬라이더·프리셋으로 변수를 만지고 <b>실시간 수치·그래프</b>로 관찰한다.</div>
+            </div>
+            <div class="cell">
+              <div class="lbl"><span class="n">3</span> 퀴즈</div>
+              <div class="shot top grow"><img src="__IMG_QUIZ__" alt="퀴즈 탭"></div>
+              <div class="d">오답마다 <b>왜 아닌지</b>를 짚는 해설. 진도와 정답률까지 기록.</div>
+            </div>
+          </div>
+          <div class="foot">무엇을 열어도 흐름이 같아, 처음 써도 헤매지 않는다.</div>
+        </section>
+
+        <!-- ============ SLIDE 5 : LINEUP ============ -->
+        <section class="slide" data-title="실험 인덱스" data-status="실험 라인업 · 3단원 10실험">
+          <div class="eyebrow"><span class="k">04</span> 실험 라인업</div>
+          <div class="row">
+            <div class="col" style="flex:0 0 44%">
+              <div class="shot fill"><img src="__IMG_INDEX__" alt="실험 인덱스 — 10개 실험"></div>
+              <div class="cap">실험 인덱스 · 단원별 필터 · 10개 항목</div>
+            </div>
+            <div class="col grow">
+              <h2 class="title" style="margin-bottom:6px">3단원 · 10실험</h2>
+              <div class="unit">
+                <span class="u-k">I</span>
+                <div class="u-b"><div class="u-t">물질과 규칙성</div>
+                  <div class="u-x">화학결합 · 전자 배치 · 원소 선 스펙트럼 · 별의 진화</div></div>
+              </div>
+              <div class="unit">
+                <span class="u-k">II</span>
+                <div class="u-b"><div class="u-t">시스템과 상호작용</div>
+                  <div class="u-x">역학<span class="muted">(자유낙하·관성·운동량·충격량)</span> · 세포막 · 효소 · 3D DNA</div></div>
+              </div>
+              <div class="unit">
+                <span class="u-k">III</span>
+                <div class="u-b"><div class="u-t">변화와 다양성</div>
+                  <div class="u-x">산화와 환원 · 생물다양성과 진화</div></div>
+              </div>
+              <div class="foot">화학 · 물리 · 생명 · 지구과학을 한 창에서. 통합과학 교과 전 범위.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 6 : HIGHLIGHT 1 - FREE FALL ============ -->
+        <section class="slide" data-title="역학 시뮬.exp · 자유낙하" data-status="하이라이트 · 진짜 물리엔진">
+          <div class="eyebrow"><span class="k">05</span> 하이라이트 · 자유낙하</div>
+          <div class="row">
+            <div class="col grow">
+              <div class="shot fill"><img src="__IMG_FREEFALL__" alt="자유낙하 시뮬레이션 실행 화면"></div>
+              <div class="cap">낙하하는 쇠구슬 · 실시간 측정 · 속도-시간 그래프</div>
+            </div>
+            <div class="col" style="flex:0 0 36%">
+              <h2 class="title">화면 속에서 도는<br><b>진짜 물리엔진.</b></h2>
+              <ul class="pts">
+                <li>높이 · 행성<span class="muted">(지구·달·화성·목성)</span> · 물체 · 공기저항을 바꾸며 낙하.</li>
+                <li>속도·거리·높이를 <b>실시간 측정</b>, <b>v-t 그래프</b>가 함께 그려진다.</li>
+                <li>진공에선 '깃털과 볼링공이 동시 착지', 공기 중엔 <b>종단속도</b>가 눈앞에서.</li>
+                <li>단일 · 비교 · <b>동시 비교</b>(수평 투사) 모드까지.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 7 : HIGHLIGHT 2 - VISUAL GALLERY ============ -->
+        <section class="slide" data-title="체험 갤러리" data-status="하이라이트 · 눈으로 보는 과학">
+          <div class="eyebrow"><span class="k">06</span> 하이라이트 · 눈으로 보는 과학</div>
+          <div class="row">
+            <div class="col cell" style="flex:0 0 44%">
+              <div class="lbl">3D DNA</div>
+              <div class="shot cover grow"><img src="__IMG_DNA__" alt="3D DNA 이중나선 — 상보적 염기쌍"></div>
+              <div class="d">염기를 쌓으면 상보 가닥<span class="muted">(A–T·G–C)</span>이 자동으로. <b>회전하는 이중나선.</b></div>
+            </div>
+            <div class="col grow" style="gap:clamp(10px,1.8vh,20px)">
+              <div class="cell grow">
+                <div class="lbl">원소 선 스펙트럼</div>
+                <div class="shot top grow"><img src="__IMG_SPECTRUM__" alt="원소 선 스펙트럼 — 별빛과 헬륨 방출선 비교"></div>
+                <div class="d">원소의 방출선을 <b>별빛에 겹쳐</b> 별의 구성 원소를 맞힌다.</div>
+              </div>
+              <div class="cell grow">
+                <div class="lbl">별의 진화</div>
+                <div class="shot cover grow"><img src="__IMG_STELLAR__" alt="별의 진화 — 성운에서 백색왜성까지"></div>
+                <div class="d">질량을 골라 <b>성운 → … → 백색왜성 / 초신성</b>까지 단계별로.</div>
+              </div>
+            </div>
+          </div>
+          <div class="foot">세포막 삼투 · 효소 변성 · 산화환원 · 자연선택까지 — 추상 개념을 전부 '보이게'.</div>
+        </section>
+
+        <!-- ============ SLIDE 8 : PEDAGOGY ============ -->
+        <section class="slide" data-title="개념 · 시험 포인트" data-status="교육적 설계">
+          <div class="eyebrow"><span class="k">07</span> 교육적 설계</div>
+          <div class="row">
+            <div class="col" style="flex:0 0 40%">
+              <h2 class="title">수업·시험과<br>바로 연결된다.</h2>
+              <ul class="pts">
+                <li>실험마다 <b>교과서 페이지</b>와 <b>학습목표</b>를 표기.</li>
+                <li><b>★ 시험 포인트</b>로 핵심을 한 줄 요약.</li>
+                <li>퀴즈는 틀린 보기마다 이유를 설명 — <b>오개념 교정</b>.</li>
+                <li>진도·정답률을 기록해 <b>스스로 점검</b>.</li>
+              </ul>
+              <div class="foot">단순 시뮬레이션이 아니라 '학습 흐름'까지 설계된 자료.</div>
+            </div>
+            <div class="col grow">
+              <div class="shot fill"><img src="__IMG_CONCEPT2__" alt="개념 탭 — 교과서 페이지·학습목표·시험 포인트"></div>
+              <div class="cap">개념 탭 · 교과서 138–142p · 학습목표 · ★ 시험 포인트</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 9 : PLATFORM - TEACHER AI ============ -->
+        <section class="slide" data-title="개념 저작 (교사)" data-status="차별점 · 교사 AI 저작">
+          <div class="eyebrow"><span class="k">08</span> 차별점 · 확장되는 실험실</div>
+          <h2 class="title">교사가 <b>AI로 새 실험을 만든다.</b></h2>
+          <ul class="pts" style="max-width:none">
+            <li>교사가 비밀번호로 들어가 새 <b>개념·인터랙티브 체험</b>을 AI로 생성.</li>
+            <li>생성물은 별도 AI가 <b>독립 검증</b>(사실성 점수 /5), 체험 코드는 <b>격리(CSP) 실행</b>으로 안전하게 미리보기.</li>
+            <li>검토 후 승인하면 학생 화면에 즉시 추가 — <b>고정 콘텐츠가 아니라 계속 자라는 플랫폼.</b></li>
+          </ul>
+          <div class="fill center" style="display:flex">
+          <div class="flow" style="margin:0; justify-content:center">
+            <div class="node"><span class="nt">힌트 입력</span><span class="ns">교사</span></div>
+            <span class="arr">▸</span>
+            <div class="node"><span class="nt">AI 개념 생성</span><span class="ns">개념·퀴즈</span></div>
+            <span class="arr">▸</span>
+            <div class="node gate"><span class="nt">독립 검증</span><span class="ns">사실성 /5</span></div>
+            <span class="arr">▸</span>
+            <div class="node"><span class="nt">AI 체험 생성</span><span class="ns">인터랙티브</span></div>
+            <span class="arr">▸</span>
+            <div class="node gate"><span class="nt">격리 미리보기</span><span class="ns">CSP 샌드박스</span></div>
+            <span class="arr">▸</span>
+            <div class="node"><span class="nt">승인 · 게시</span><span class="ns">학생에게 공개</span></div>
+          </div>
+          </div>
+          <div class="foot">학교 · 과목 · 수업에 맞춘 '나만의 실험'이 계속 쌓인다.</div>
+        </section>
+
+        <!-- ============ SLIDE 9.5 : TEACHER AUTHORING SCREEN ============ -->
+        <section class="slide" data-title="개념 저작 (교사)" data-status="차별점 · 직접 만들기">
+          <div class="eyebrow"><span class="k">09</span> 차별점 · 교사가 직접 만들기</div>
+          <div class="row">
+            <div class="col grow">
+              <div class="shot fill"><img src="__IMG_AUTHOR__" alt="교사 개념 저작 화면 — 개념명·단원·힌트 입력 후 생성"></div>
+              <div class="cap">개념 저작 (교사) · 개념명 · 단원 · 힌트 입력 → 생성 ▸</div>
+            </div>
+            <div class="col" style="flex:0 0 37%">
+              <h2 class="title">몇 줄만 적으면,<br>새 실험이 만들어진다.</h2>
+              <ul class="pts">
+                <li><span class="mono">＋ 개념 추가</span> → <b>교사 패스코드</b>로 잠금 해제.</li>
+                <li><b>개념명 · 단원 · 힌트</b>만 입력하고 <b>생성 ▸</b>.</li>
+                <li>AI가 <b>개념 · 시험 포인트 · 퀴즈 · 인터랙티브 체험</b>까지 초안 작성.</li>
+                <li>검증 · 격리 미리보기 · 승인을 거쳐 <b>학생 화면에 바로 추가</b>.</li>
+              </ul>
+              <div class="foot">예시 · '산과 염기' — 리트머스·pH로 산성·염기성 구분</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 10 : CTA / DEMO ============ -->
+        <section class="slide" data-title="실험 HD" data-status="지금 열어보기">
+          <div class="eyebrow"><span class="k">10</span> 지금 열어보기</div>
+          <div class="row" style="align-items:center">
+            <div class="col grow">
+              <h2 class="title">브라우저에서 바로.<br>설치도, 회원가입도 없음.</h2>
+              <span class="urlpill" style="align-self:flex-start"><span class="dot"></span>free-fall-experiment.vercel.app</span>
+              <div class="divider"></div>
+              <div style="font-size:clamp(12.5px,1.7vh,16px);line-height:1.7">
+                <div class="mono muted" style="font-size:12px;margin-bottom:6px">이런 분께</div>
+                통합과학을 배우는 <b>학생</b> · 수업 자료가 필요한 <b>교사</b> · 인터랙티브 학습을 찾는 <b>누구나</b>
+              </div>
+            </div>
+            <div class="col" style="flex:0 0 auto">
+              <div class="qr">__QR_SVG__</div>
+              <div class="cap" style="text-align:center">QR로 바로 열기</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SLIDE 11 : CLOSING ============ -->
+        <section class="slide" data-title="통합과학 LAB" data-status="마무리">
+          <div class="closing">
+            <svg class="heroicon" viewBox="0 0 120 108" fill="none" stroke="#000" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+              <rect x="12" y="8" width="96" height="72" rx="6"/>
+              <path d="M54 26 h12 v14 l14 24 a6 6 0 0 1 -5 9 H45 a6 6 0 0 1 -5 -9 l14 -24 z"/>
+              <line x1="49" y1="52" x2="71" y2="52"/>
+              <circle cx="60" cy="61" r="2.4" fill="#000" stroke="none"/>
+              <path d="M46 96 h28 M60 80 v16"/>
+            </svg>
+            <h1 class="title">보이지 않는 과학을,<br>만질 수 있게.</h1>
+            <p class="lead" style="text-align:center">통합과학 LAB · 만지는 과학 실험실</p>
+            <span class="urlpill"><span class="dot"></span>free-fall-experiment.vercel.app</span>
+          </div>
+        </section>
+
+      </div><!-- /content -->
+
+      <div class="statusbar">
+        <span id="statusLeft">표지</span>
+        <span class="nav">
+          <button id="prevBtn" aria-label="이전 슬라이드">◀</button>
+          <span id="statusPage" class="mono">1 / 11</span>
+          <button id="nextBtn" aria-label="다음 슬라이드">▶</button>
+        </span>
+      </div>
+    </div><!-- /window -->
+  </div><!-- /stage -->
+</div><!-- /desktop -->
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var i = 0;
+  var winTitle = document.getElementById('winTitle');
+  var statusLeft = document.getElementById('statusLeft');
+  var statusPage = document.getElementById('statusPage');
+  var counter = document.getElementById('counter');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  function pad(n){return (n<10?'0':'')+n;}
+  function show(n){
+    i = Math.max(0, Math.min(total-1, n));
+    slides.forEach(function(s,k){ s.classList.toggle('active', k===i); });
+    var s = slides[i];
+    winTitle.textContent = s.getAttribute('data-title') || '';
+    statusLeft.textContent = s.getAttribute('data-status') || '';
+    statusPage.textContent = (i+1)+' / '+total;
+    counter.textContent = pad(i+1)+' / '+pad(total);
+    prevBtn.disabled = (i===0);
+    nextBtn.disabled = (i===total-1);
+  }
+  function next(){ show(i+1); }
+  function prev(){ show(i-1); }
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ e.preventDefault(); show(0); }
+    else if(e.key==='End'){ e.preventDefault(); show(total-1); }
+  });
+  prevBtn.addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+  nextBtn.addEventListener('click', function(e){ e.stopPropagation(); next(); });
+  // click anywhere on stage to advance (ignore clicks on links/buttons)
+  document.querySelector('.stage').addEventListener('click', function(e){
+    if(e.target.closest('button, a')) return;
+    next();
+  });
+  show(0);
+})();
+</script>

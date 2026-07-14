@@ -1,0 +1,11 @@
+# Galmuri 폰트(용량 큼) — npm pack galmuri 로 준비, README 참고
+src/fonts/
+
+# 빌드 산출물이 아닌 임시 패키지
+galmuri-*.tgz
+package/
+
+# python / node
+__pycache__/
+*.pyc
+node_modules/
