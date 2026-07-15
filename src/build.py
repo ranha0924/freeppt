@@ -5,11 +5,10 @@
 deck.src.html(플레이스홀더 템플릿)에
   - Galmuri 픽셀 폰트(사용 글자만 서브셋한 woff2)
   - 실제 화면 스크린샷(assets/*.png)
-  - QR 코드(SVG)
 를 모두 data URI로 인라인 삽입해 자기완결형 ../index.html 을 생성한다.
 
 준비물:
-  pip install fonttools brotli "qrcode[pil]"
+  pip install fonttools brotli
   Galmuri TTF 4종을 src/fonts/ 에 둔다:
     Galmuri11.ttf, Galmuri11-Bold.ttf, Galmuri14.ttf, GalmuriMono11.ttf
   (npm pack galmuri 후 package/dist/ 에서 복사)
@@ -89,26 +88,11 @@ def img_uri(fn):
 print('embedding images...')
 IMGS = {k: img_uri(v) for k, v in IMG_FILES.items()}
 
-# ---------- 4. QR 코드 (SVG, PIL 불필요) ----------
-import qrcode, qrcode.image.svg
-qr = qrcode.QRCode(border=1, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
-qr.add_data('https://free-fall-experiment.vercel.app/')
-qr.make(fit=True)
-qr_svg = qr.make_image(image_factory=qrcode.image.svg.SvgPathImage).to_string(encoding='unicode')
-qr_svg = re.sub(r'<\?xml[^>]*\?>', '', qr_svg).strip()
-qr_svg = re.sub(r'width="[^"]*"', 'width="100%"', qr_svg, count=1)
-qr_svg = re.sub(r'height="[^"]*"', 'height="100%"', qr_svg, count=1)
-if 'preserveAspectRatio' not in qr_svg:
-    qr_svg = qr_svg.replace('<svg ', '<svg preserveAspectRatio="xMidYMid meet" ', 1)
-qr_svg = qr_svg.replace('fill="#ffffff"', 'fill="none"').replace('fill:#ffffff', 'fill:none')
-qr_svg = re.sub(r'(<path )', r'\1fill="#000000" ', qr_svg, count=1)
-
-# ---------- 5. 치환 & 저장 ----------
+# ---------- 4. 치환 & 저장 ----------
 for k, v in {**FONTS_OUT, **IMGS}.items():
     if k not in html:
         print('WARN placeholder not found:', k)
     html = html.replace(k, v)
-html = html.replace('__QR_SVG__', qr_svg)
 
 leftover = re.findall(r'__[A-Z0-9_]+__', html)
 if leftover:
